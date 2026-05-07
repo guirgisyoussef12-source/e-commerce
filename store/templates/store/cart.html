@@ -1,0 +1,18 @@
+{% extends 'store/base.html' %}
+{% block content %}
+<h2>your cart</h2>
+{% for item in items%}
+    <div class="cart mb-2 p-2">
+        <h5>{{item.product.name}}</h5>
+        <p>price:
+{{item.product.price}} EGP</p>
+        <p>quantity:
+{{item.quantity}}</p>
+<a href="{% url 'remove_from_cart' item.id %}" class="btn btn-danger">
+    remove
+</a>
+    </div>
+{% empty %}
+    <p>your cart is empty</p>
+{% endfor %}
+{% endblock %}
