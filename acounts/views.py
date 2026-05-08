@@ -11,7 +11,7 @@ def sign_up(request):
         if form.is_valid():
             user = form.save()
             login(request, user)
-            return redirect('login')
+            return redirect('product_list')
 
         else:
             print("FORM ERRORS:", form.errors)  # مهم جدًا
@@ -32,7 +32,7 @@ def login_view(request):
         if form.is_valid():
             user = form.get_user()
             login(request, user)
-            return redirect('/products/')
+            return redirect('product_list')
 
     else:
         form = AuthenticationForm()

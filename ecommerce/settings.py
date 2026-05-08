@@ -125,5 +125,7 @@ STATIC_URL = 'static/'
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
-LOGIN_URL = 'admin:login' # Temporary fix: redirects to admin login
-LOGIN_REDIRECT_URL = 'product_list'
+LOGIN_URL = '/acounts/login/'
+LOGIN_REDIRECT_URL = '/products/'
+LOGOUT_REDIRECT_URL = '/acounts/login/'
+SESSION_ENGINE = 'django.contrib.sessions.backends.db'
