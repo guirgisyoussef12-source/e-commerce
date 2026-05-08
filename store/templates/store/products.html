@@ -9,10 +9,12 @@
         <div class="col-md-4">
             <div class="card mb-4">
                 <div class="card-body">
+                    {% if product.image %}
+                    <img src="{{ product.image.url }}" width="200">
+                     {% endif %}
                     <h5 class="card-title">{{ product.name }}</h5>
                     <p class="card-text">{{ product.description }}</p>
                     <p><strong>{{ product.price }} EGP</strong></p>
-
                     <a href="{% url 'add_to_cart' product.id %}" class="btn btn-primary">
                         Add to Cart
                     </a>
