@@ -2,4 +2,14 @@
 
 {% block content %}
 <h1>signup</h1>
+<form method="post">
+    {% csrf_token %}
+     {{ form.errors }}
+    {{form.as_p}}
+    <button type="submit" class="btn btn-primary">
+        creat acount
+    </button>
+
+
+</form>
 {% endblock %}
