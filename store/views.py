@@ -4,6 +4,8 @@ from .models import Product, CartItem
 
 
 def home(request):
+    if request.user.is_authenticated:
+        return redirect('product_list')
     return redirect('sign_up')
 
 @login_required
@@ -24,6 +26,8 @@ def add_to_cart(request, product_id):
         cart_item.quantity += 1
         cart_item.save()
     return redirect('product_list')
+    if product.stock == 0:
+        return redirect('product_list')
 @login_required
 def cart_view(request):
     items = CartItem.objects.filter(user=request.user)

@@ -13,13 +13,11 @@ def sign_up(request):
             login(request, user)
             return redirect('product_list')
 
-        else:
-            print("FORM ERRORS:", form.errors)  # مهم جدًا
 
     else:
         form = SignUpForm()
 
-    return render(request, 'acounts/sign_up.html', {'form': form})
+    return render(request, 'accounts/sign_up.html', {'form': form})
 
 
 def logout_view(request):
@@ -37,4 +35,4 @@ def login_view(request):
     else:
         form = AuthenticationForm()
 
-    return render(request, 'acounts/login.html', {'form': form})
+    return render(request, 'accounts/login.html', {'form': form})

@@ -38,7 +38,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'store',
-    'acounts',
+    'accounts',
 ]
 
 MIDDLEWARE = [
@@ -56,7 +56,7 @@ ROOT_URLCONF = 'ecommerce.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [BASE_DIR / 'templates'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -125,7 +125,7 @@ STATIC_URL = 'static/'
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
-LOGIN_URL = '/acounts/login/'
+LOGIN_URL = '/accounts/login/'
 LOGIN_REDIRECT_URL = '/products/'
-LOGOUT_REDIRECT_URL = '/acounts/login/'
+LOGOUT_REDIRECT_URL = '/accounts/login/'
 SESSION_ENGINE = 'django.contrib.sessions.backends.db'
