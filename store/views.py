@@ -11,7 +11,10 @@ def home(request):
 @login_required
 
 def product_list(request):
+    query = request.GET.get('q')
     products = Product.objects.all()
+    if query:
+        products = products.filter(name__icontains=query)
     return render(request, 'store/products.html', {'products': products})
 
 @login_required
