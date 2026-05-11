@@ -2,20 +2,16 @@
 
 {% block content %}
 
-<div class="text-center mt-5">
-
-    <h1 class="text-success mb-3">
-        Order Placed Successfully 🎉
-    </h1>
-
-    <p class="lead">
-        Thank you for your purchase.
+<section class="empty-state">
+    <div class="section-kicker mb-2">Order confirmed</div>
+    <h1 class="page-title">Success</h1>
+    <p class="page-copy mt-3 mb-4">
+        Thank you for your purchase. Your order has been placed successfully.
     </p>
 
-    <a href="{% url 'product_list' %}" class="btn btn-primary mt-3">
-        Back to Store
+    <a href="{% url 'product_list' %}" class="btn-store btn-primary-store">
+        Back to store
     </a>
-
-</div>
+</section>
 
 {% endblock %}

@@ -2,50 +2,91 @@
 
 {% block content %}
 
-<h1 class="mb-4">Checkout</h1>
+<style>
+    .checkout-layout {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) 340px;
+        gap: 22px;
+        align-items: start;
+    }
+
+    .checkout-list {
+        display: grid;
+        gap: 12px;
+        padding: 0;
+        margin: 0;
+        list-style: none;
+    }
+
+    .checkout-item {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 18px;
+        padding: 16px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: white;
+    }
+
+    .checkout-total {
+        font-size: 2rem;
+        font-weight: 800;
+        line-height: 1;
+    }
+
+    @media (max-width: 820px) {
+        .checkout-layout {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+
+<div class="mb-4">
+    <div class="section-kicker">Secure checkout</div>
+    <h1 class="page-title mt-2">Checkout</h1>
+    <p class="page-copy mt-3 mb-0">Confirm your order details and place the order.</p>
+</div>
 
 {% if items %}
+    <section class="checkout-layout">
+        <div class="panel p-3 p-md-4">
+            <ul class="checkout-list">
+                {% for item in items %}
+                    <li class="checkout-item">
+                        <div>
+                            <strong>{{ item.product.name }}</strong>
+                            <div class="muted-copy">Quantity: {{ item.quantity }}</div>
+                        </div>
 
-    <div class="card p-4">
+                        <span class="price">{{ item.product.price }} EGP</span>
+                    </li>
+                {% endfor %}
+            </ul>
+        </div>
 
-        <ul class="list-group mb-3">
+        <aside class="panel p-4">
+            <div class="section-kicker mb-2">Total</div>
+            <div class="checkout-total mb-3">{{ total }} EGP</div>
+            <p class="muted-copy">Your cart will be cleared after the order is placed.</p>
 
-            {% for item in items %}
-                <li class="list-group-item d-flex justify-content-between">
-                    <div>
-                        <strong>{{ item.product.name }}</strong>
-                        <br>
-                        Quantity: {{ item.quantity }}
-                    </div>
+            <form method="POST">
+                {% csrf_token %}
+                <button type="submit" class="btn-store btn-primary-store w-100">
+                    Place order
+                </button>
+            </form>
 
-                    <span>
-                        ${{ item.product.price }}
-                    </span>
-                </li>
-            {% endfor %}
-
-        </ul>
-
-        <h3 class="mb-3">
-            Total: ${{ total }}
-        </h3>
-
-        <form method="POST">
-            {% csrf_token %}
-
-            <button type="submit" class="btn btn-success">
-                Place Order
-            </button>
-        </form>
-
-    </div>
-
+            <a href="{% url 'cart' %}" class="btn-store w-100 mt-2">
+                Back to cart
+            </a>
+        </aside>
+    </section>
 {% else %}
-
-    <div class="alert alert-warning">
-        Your cart is empty.
+    <div class="empty-state">
+        <h2 class="h4 fw-bold mb-2">Your cart is empty</h2>
+        <a href="{% url 'product_list' %}" class="btn-store btn-primary-store">Shop products</a>
     </div>
-
 {% endif %}
 
 {% endblock %}
