@@ -1,0 +1,51 @@
+{% extends 'store/base.html' %}
+
+{% block content %}
+
+<h1 class="mb-4">Checkout</h1>
+
+{% if items %}
+
+    <div class="card p-4">
+
+        <ul class="list-group mb-3">
+
+            {% for item in items %}
+                <li class="list-group-item d-flex justify-content-between">
+                    <div>
+                        <strong>{{ item.product.name }}</strong>
+                        <br>
+                        Quantity: {{ item.quantity }}
+                    </div>
+
+                    <span>
+                        ${{ item.product.price }}
+                    </span>
+                </li>
+            {% endfor %}
+
+        </ul>
+
+        <h3 class="mb-3">
+            Total: ${{ total }}
+        </h3>
+
+        <form method="POST">
+            {% csrf_token %}
+
+            <button type="submit" class="btn btn-success">
+                Place Order
+            </button>
+        </form>
+
+    </div>
+
+{% else %}
+
+    <div class="alert alert-warning">
+        Your cart is empty.
+    </div>
+
+{% endif %}
+
+{% endblock %}
