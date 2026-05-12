@@ -23,9 +23,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-mxqysye#5-r)q&j*g9=aq4bdgxc*rz#vgh&rw-v-2ug-)-4^ay'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["*"]
 
 
 # Application definition
@@ -124,7 +124,7 @@ STATIC_URL = 'static/'
 # Media files (Product images, etc.)
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
-
+STATIC_ROOT = BASE_DIR / "staticfiles"
 LOGIN_URL = '/accounts/login/'
 LOGIN_REDIRECT_URL = '/products/'
 LOGOUT_REDIRECT_URL = '/accounts/login/'
