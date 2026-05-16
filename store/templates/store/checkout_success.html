@@ -1,0 +1,17 @@
+{% extends 'store/base.html' %}
+
+{% block content %}
+
+<section class="empty-state">
+    <div class="section-kicker mb-2">Order confirmed</div>
+    <h1 class="page-title">Success</h1>
+    <p class="page-copy mt-3 mb-4">
+        Thank you for your purchase. Your order has been placed successfully.
+    </p>
+
+    <a href="{% url 'product_list' %}" class="btn-store btn-primary-store">
+        Back to store
+    </a>
+</section>
+
+{% endblock %}

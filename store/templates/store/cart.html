@@ -1,0 +1,131 @@
+{% extends 'store/base.html' %}
+
+{% block content %}
+
+<style>
+    .cart-layout {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) 340px;
+        gap: 22px;
+        align-items: start;
+    }
+
+    .cart-list {
+        display: grid;
+        gap: 14px;
+    }
+
+    .cart-card {
+        padding: 16px;
+    }
+
+    .cart-item {
+        display: grid;
+        grid-template-columns: 112px minmax(0, 1fr) auto;
+        gap: 16px;
+        align-items: center;
+    }
+
+    .cart-thumb {
+        width: 112px;
+        aspect-ratio: 1;
+        overflow: hidden;
+        border-radius: 8px;
+        background: var(--soft);
+    }
+
+    .cart-thumb img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .summary-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        padding: 12px 0;
+        border-bottom: 1px solid var(--line);
+    }
+
+    @media (max-width: 880px) {
+        .cart-layout {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    @media (max-width: 560px) {
+        .cart-item {
+            grid-template-columns: 86px minmax(0, 1fr);
+        }
+
+        .cart-thumb {
+            width: 86px;
+        }
+
+        .cart-actions {
+            grid-column: 1 / -1;
+        }
+    }
+</style>
+
+<div class="mb-4">
+    <div class="section-kicker">Your basket</div>
+    <h1 class="page-title mt-2">Cart</h1>
+    <p class="page-copy mt-3 mb-0">Review your selected items before checkout.</p>
+</div>
+
+{% if items %}
+    <section class="cart-layout">
+        <div class="cart-list">
+            {% for item in items %}
+                <article class="cart-card cart-item">
+                    <div class="cart-thumb">
+                        {% if item.product.image %}
+                            <img src="{{ item.product.image.url }}" alt="{{ item.product.name }}">
+                        {% endif %}
+                    </div>
+
+                    <div>
+                        <h2 class="h5 fw-bold mb-2">{{ item.product.name }}</h2>
+                        <p class="muted-copy mb-1">Quantity: {{ item.quantity }}</p>
+                        <p class="price mb-0">{{ item.product.price }} EGP</p>
+                    </div>
+
+                    <div class="cart-actions text-end">
+                        <a href="{% url 'remove_from_cart' item.id %}" class="btn-store btn-danger-store">
+                            Remove
+                        </a>
+                    </div>
+                </article>
+            {% endfor %}
+        </div>
+
+        <aside class="cart-card">
+            <div class="section-kicker mb-2">Order summary</div>
+            <h2 class="h4 fw-bold mb-3">Ready when you are</h2>
+
+            <div class="summary-row">
+                <span class="muted-copy">Total items</span>
+                <strong>{{ items|length }}</strong>
+            </div>
+
+            <a href="{% url 'checkout' %}" class="btn-store btn-primary-store w-100 mt-4">
+                Proceed to checkout
+            </a>
+
+            <a href="{% url 'product_list' %}" class="btn-store w-100 mt-2">
+                Continue shopping
+            </a>
+        </aside>
+    </section>
+{% else %}
+    <div class="empty-state">
+        <h2 class="h4 fw-bold mb-2">Your cart is empty</h2>
+        <p class="muted-copy mb-3">Start with the catalog and add a few favorites.</p>
+        <a href="{% url 'product_list' %}" class="btn-store btn-primary-store">Shop products</a>
+    </div>
+{% endif %}
+
+{% endblock %}

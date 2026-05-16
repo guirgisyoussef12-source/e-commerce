@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MyStore</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --bg: #f6f4ef;
+            --surface: #ffffff;
+            --soft: #ede8de;
+            --ink: #17211d;
+            --muted: #6d746f;
+            --line: #ded8cc;
+            --brand: #0f766e;
+            --brand-dark: #115e59;
+            --danger: #e35d3f;
+            --danger-soft: #f9d9cf;
+            --shadow: 0 18px 45px rgba(23, 33, 29, 0.10);
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            min-height: 100vh;
+            margin: 0;
+            font-family: 'Inter', sans-serif;
+            color: var(--ink);
+            background:
+                linear-gradient(135deg, rgba(15,118,110,.10), transparent 35%),
+                linear-gradient(315deg, rgba(227,93,63,.10), transparent 30%),
+                var(--bg);
+        }
+
+        a {
+            color: var(--brand);
+            font-weight: 700;
+            text-decoration: none;
+        }
+
+        a:hover { color: var(--brand-dark); }
+
+        .navbar {
+            background: rgba(246,244,239,.9);
+            border-bottom: 1px solid rgba(23,33,29,.1);
+            backdrop-filter: blur(18px);
+        }
+
+        .navbar-brand {
+            color: var(--ink) !important;
+            font-size: 1.25rem;
+            font-weight: 800;
+        }
+
+        .brand-mark {
+            display: inline-grid;
+            width: 34px;
+            height: 34px;
+            margin-right: 10px;
+            place-items: center;
+            color: white;
+            background: var(--brand);
+            border-radius: 8px;
+            font-size: .9rem;
+            box-shadow: 0 10px 24px rgba(15,118,110,.22);
+        }
+
+        .nav-actions {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+
+        .btn-store,
+        .nav-link-pill {
+            display: inline-flex;
+            min-height: 42px;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid var(--line);
+            border-radius: 8px;
+            padding: 10px 16px;
+            color: var(--ink);
+            background: rgba(255,255,255,.75);
+            font-size: .92rem;
+            font-weight: 800;
+            transition: .18s ease;
+        }
+
+        .btn-store:hover,
+        .nav-link-pill:hover {
+            transform: translateY(-1px);
+            color: var(--ink);
+            background: white;
+            border-color: rgba(15,118,110,.35);
+            box-shadow: 0 10px 22px rgba(23,33,29,.08);
+        }
+
+        .btn-primary-store {
+            color: white;
+            background: var(--brand);
+            border-color: var(--brand);
+        }
+
+        .btn-primary-store:hover {
+            color: white;
+            background: var(--brand-dark);
+            border-color: var(--brand-dark);
+        }
+
+        .btn-danger-store {
+            color: #982f1d;
+            background: var(--danger-soft);
+            border-color: rgba(227,93,63,.35);
+        }
+
+        .btn-danger-store:hover {
+            color: white;
+            background: var(--danger);
+            border-color: var(--danger);
+        }
+
+        .page-wrap {
+            width: min(1180px, calc(100% - 32px));
+            margin: 0 auto;
+            padding: 42px 0 64px;
+        }
+
+        .section-kicker {
+            color: var(--brand);
+            font-size: .78rem;
+            font-weight: 800;
+            letter-spacing: .08em;
+            text-transform: uppercase;
+        }
+
+        .page-title {
+            margin: 0;
+            font-size: clamp(2rem, 6vw, 4.75rem);
+            font-weight: 800;
+            line-height: .98;
+        }
+
+        .page-copy,
+        .muted-copy {
+            color: var(--muted);
+            font-size: 1rem;
+            line-height: 1.7;
+        }
+
+        .panel,
+        .product-card,
+        .cart-card,
+        .auth-card {
+            border: 1px solid var(--line);
+            border-radius: 8px;
+            background: rgba(255,255,255,.9);
+            box-shadow: var(--shadow);
+        }
+
+        .form-control,
+        input[type="text"],
+        input[type="password"],
+        input[type="email"],
+        textarea,
+        select {
+            width: 100%;
+            min-height: 46px;
+            border: 1px solid var(--line) !important;
+            border-radius: 8px !important;
+            padding: 11px 13px !important;
+            color: var(--ink) !important;
+            background: white !important;
+            box-shadow: none !important;
+        }
+
+        input:focus,
+        textarea:focus,
+        select:focus,
+        .form-control:focus {
+            border-color: var(--brand) !important;
+            outline: 3px solid rgba(15,118,110,.14) !important;
+        }
+
+        label {
+            margin-bottom: 7px;
+            font-size: .88rem;
+            font-weight: 800;
+        }
+
+        .helptext,
+        .form-text,
+        form ul {
+            color: var(--muted);
+            font-size: .86rem;
+        }
+
+        .errorlist {
+            margin: 0 0 12px;
+            padding: 11px 14px;
+            border: 1px solid rgba(227,93,63,.28);
+            border-radius: 8px;
+            color: #982f1d;
+            background: var(--danger-soft);
+            list-style-position: inside;
+        }
+
+        .empty-state {
+            padding: 52px 20px;
+            border: 1px dashed rgba(15,118,110,.35);
+            border-radius: 8px;
+            text-align: center;
+            background: rgba(255,255,255,.68);
+        }
+
+        @media (max-width: 720px) {
+            .nav-actions {
+                width: 100%;
+                justify-content: flex-start;
+                margin-top: 12px;
+            }
+
+            .page-wrap {
+                width: min(100% - 24px, 1180px);
+                padding-top: 28px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg py-3 sticky-top">
+        <div class="container">
+            <a class="navbar-brand d-flex align-items-center" href="/">
+                <span class="brand-mark">MS</span>
+                MyStore
+            </a>
+
+            <div class="nav-actions ms-auto">
+                {% if user.is_authenticated %}
+                    <a href="{% url 'product_list' %}" class="nav-link-pill">Shop</a>
+                    <a href="{% url 'cart' %}" class="nav-link-pill">Cart</a>
+                {% else %}
+                    <a href="{% url 'login' %}" class="nav-link-pill">Login</a>
+                    <a href="{% url 'sign_up' %}" class="nav-link-pill btn-primary-store">Create account</a>
+                {% endif %}
+            </div>
+        </div>
+    </nav>
+
+    <main class="page-wrap">
+        {% block content %}
+        {% endblock %}
+    </main>
+</body>
+</html>
