@@ -11,9 +11,13 @@ https://docs.djangoproject.com/en/6.0/ref/settings/
 """
 
 from pathlib import Path
+<<<<<<< HEAD
 import os
 from dotenv import load_dotenv
 load_dotenv()
+=======
+
+>>>>>>> 83a29c98bfc4e81e6bbe48638027fa6454c237a7
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -25,8 +29,14 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-mxqysye#5-r)q&j*g9=aq4bdgxc*rz#vgh&rw-v-2ug-)-4^ay'
 
 # SECURITY WARNING: don't run with debug turned on in production!
+<<<<<<< HEAD
 DEBUG = True
 ["ALLOWED_HOSTS = ['127.0.0.1', 'localhost']"]
+=======
+DEBUG = False
+
+ALLOWED_HOSTS = ["*"]
+>>>>>>> 83a29c98bfc4e81e6bbe48638027fa6454c237a7
 
 
 # Application definition
@@ -79,8 +89,13 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'ecommerce',
+<<<<<<< HEAD
         'USER': os.environ.get('DB_USER'),
         'PASSWORD': os.environ.get('DB_PASSWORD'),
+=======
+        'USER': 'postgres',
+        'PASSWORD': 'guirgis',
+>>>>>>> 83a29c98bfc4e81e6bbe48638027fa6454c237a7
         'HOST': 'localhost',
         'PORT': '5432',
     }
@@ -125,6 +140,10 @@ STATIC_URL = 'static/'
 # Media files (Product images, etc.)
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
+<<<<<<< HEAD
+=======
+STATIC_ROOT = BASE_DIR / "staticfiles"
+>>>>>>> 83a29c98bfc4e81e6bbe48638027fa6454c237a7
 LOGIN_URL = '/accounts/login/'
 LOGIN_REDIRECT_URL = '/products/'
 LOGOUT_REDIRECT_URL = '/accounts/login/'
