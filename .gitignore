@@ -1,21 +1,36 @@
-# Created by venv; see https://docs.python.org/3/library/venv.html
-# Environment variables
+
 .env
+*.env
 
 # Python cache
 __pycache__/
 *.pyc
+*.pyo
+*.pyd
+.Python
 
 # Virtual environment
 venv/
+env/
+.venv/
 
-# Django media/static generated files
+# Django generated files
 media/
 staticfiles/
 
-# VS Code
+# Database
+*.db
+
+# VS Code / IDE
 .vscode/
+.idea/
 
 # OS files
 .DS_Store
 Thumbs.db
+
+# Docker
+.dockerignore
+
+# Logs
+*.log
