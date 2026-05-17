@@ -95,3 +95,10 @@ LOGIN_REDIRECT_URL = '/products/'
 LOGOUT_REDIRECT_URL = '/accounts/login/'
 
 SESSION_ENGINE = 'django.contrib.sessions.backends.db'
+# Production settings
+CSRF_TRUSTED_ORIGINS = [
+    'https://guirgis-store.up.railway.app',
+]
+
+# Static files
+STATICFILES_DIRS = []
