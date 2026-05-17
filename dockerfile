@@ -17,4 +17,4 @@ RUN pip install -r requirements.txt
 COPY . /app/
 
 # تشغيل السيرفر
-CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]
+CMD ["gunicorn", "ecommerce.wsgi:application", "--bind", "0.0.0.0:8000", "--workers", "3"]
