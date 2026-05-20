@@ -176,13 +176,26 @@
                 placeholder="Search by product name"
                 value="{{ request.GET.q }}"
             >
-
             <button type="submit" class="btn-store btn-primary-store">
                 Search
             </button>
         </form>
     </div>
 </section>
+
+<!-- Category Filter -->
+<div style="display:flex; flex-wrap:wrap; gap:8px; margin-bottom:20px;">
+    <a href="{% url 'product_list' %}{% if request.GET.q %}?q={{ request.GET.q }}{% endif %}"
+       class="btn-store btn-primary-store">
+        All
+    </a>
+    {% for category in categories %}
+    <a href="?category={{ category.id }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}"
+       class="btn-store btn-primary-store">
+        {{ category.name }}
+    </a>
+    {% endfor %}
+</div>
 
 {% if products %}
     <section class="product-grid">
@@ -204,9 +217,9 @@
 
                     <div class="product-footer">
                         <span class="price">{{ product.price }} EGP</span>
-                            <form method="POST" action="{% url 'add_to_cart' product.id %}">
-                        {       % csrf_token %}
-                                <button type="submit" class="btn-store btn-primary-store">Add</button>
+                        <form method="POST" action="{% url 'add_to_cart' product.id %}">
+                            {% csrf_token %}
+                            <button type="submit" class="btn-store btn-primary-store">Add</button>
                         </form>
                     </div>
                 </div>

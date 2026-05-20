@@ -1,0 +1,131 @@
+{% extends "store/base.html" %}
+
+{% block content %}
+
+<style>
+    .history-hero {
+        margin-bottom: 34px;
+    }
+
+    .order-list {
+        display: flex;
+        flex-direction: column;
+        gap: 18px;
+    }
+
+    .order-card {
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: rgba(255,255,255,.9);
+        box-shadow: var(--shadow);
+        overflow: hidden;
+    }
+
+    .order-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 12px;
+        padding: 18px 22px;
+        border-bottom: 1px solid var(--line);
+        background: rgba(246,244,239,.6);
+    }
+
+    .order-id {
+        margin: 0;
+        font-size: 1rem;
+        font-weight: 800;
+    }
+
+    .order-date {
+        color: var(--muted);
+        font-size: .86rem;
+        font-weight: 700;
+    }
+
+    .order-total {
+        color: var(--brand);
+        font-size: 1rem;
+        font-weight: 800;
+        white-space: nowrap;
+    }
+
+    .order-items {
+        padding: 18px 22px;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    .order-item-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+    }
+
+    .item-name {
+        font-weight: 700;
+        font-size: .95rem;
+    }
+
+    .item-qty {
+        color: var(--muted);
+        font-size: .88rem;
+        font-weight: 700;
+    }
+
+    .item-price {
+        font-weight: 800;
+        font-size: .95rem;
+        white-space: nowrap;
+    }
+
+    .divider {
+        border: none;
+        border-top: 1px solid var(--line);
+        margin: 0;
+    }
+</style>
+
+<div class="history-hero">
+    <div class="section-kicker">Your purchases</div>
+    <h1 class="page-title mt-2">Order History</h1>
+    <p class="page-copy mt-4 mb-0">All your past orders in one place.</p>
+</div>
+
+{% if orders %}
+    <div class="order-list">
+        {% for order in orders %}
+            <div class="order-card">
+                <div class="order-header">
+                    <h2 class="order-id">Order #{{ order.id }}</h2>
+                    <span class="order-date">{{ order.created_at|date:"M d, Y" }}</span>
+                    <span class="order-total">{{ order.get_cart_total }} EGP</span>
+                </div>
+
+                <div class="order-items">
+                    {% for item in order.items.all %}
+                        <div class="order-item-row">
+                            <span class="item-name">{{ item.product.name }}</span>
+                            <span class="item-qty">x{{ item.quantity }}</span>
+                            <span class="item-price">{{ item.price }} EGP</span>
+                        </div>
+                        {% if not forloop.last %}
+                            <hr class="divider">
+                        {% endif %}
+                    {% endfor %}
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+{% else %}
+    <div class="empty-state">
+        <h2 class="h4 fw-bold mb-2">No orders yet</h2>
+        <p class="muted-copy mb-3">You haven't placed any orders yet.</p>
+        <a href="{% url 'product_list' %}" class="btn-store btn-primary-store">Start shopping</a>
+    </div>
+{% endif %}
+
+{% endblock %}

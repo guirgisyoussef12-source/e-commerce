@@ -1,6 +1,6 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
-from .models import Product, CartItem, Order, OrderItem
+from .models import Product, CartItem, Order, OrderItem , Category
 from django.db import transaction
 def home(request):
     if request.user.is_authenticated:
@@ -11,12 +11,20 @@ def home(request):
 @login_required
 def product_list(request):
     query = request.GET.get('q')
+    category_id = request.GET.get('category')
+
     products = Product.objects.all()
 
     if query:
         products = products.filter(name__icontains=query)
+    if category_id:
+        products = products.filter(category_id=category_id)
 
-    return render(request, 'store/products.html', {'products': products})
+    categories = Category.objects.all()
+    return render(request, 'store/products.html', {
+        'products': products,
+        'categories': categories 
+    })
 
 
 @login_required
@@ -66,13 +74,13 @@ def checkout(request):
 
             for item in items:
                 OrderItem.objects.create(
-                order=order,
-                product=item.product,
-                quantity=item.quantity,
-                price=item.product.price
-            )
-            item.product.stock -= item.quantity
-            item.product.save()
+                    order=order,
+                    product=item.product,
+                    quantity=item.quantity,
+                    price=item.product.price
+                )
+                item.product.stock -= item.quantity
+                item.product.save()
         items.delete()
 
         return redirect('checkout_success')
@@ -88,3 +96,7 @@ def checkout(request):
 @login_required
 def checkout_success(request):
     return render(request, 'store/checkout_success.html')
+@login_required
+def order_history(request):
+    orders = Order.objects.filter(user=request.user).prefetch_related('items__product').order_by('-created_at')
+    return render(request, 'store/order_history.html', {'orders': orders})
