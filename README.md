@@ -5,10 +5,11 @@ Users can browse products, manage a cart, and place orders.
 
 ## Features
 - User registration and authentication
-- Product browsing and search
+- Product browsing, search, and category filtering
 - Shopping cart (add / remove items)
-- Stock management
+- Stock management — stock decrements automatically after checkout
 - Order checkout with atomic transactions
+- Order history
 
 ## Stack
 - Python / Django
@@ -30,10 +31,13 @@ python manage.py runserver
 ```
 
 ## Environment Variables
-```
 DB_NAME=
 DB_USER=
 DB_PASSWORD=
 DB_HOST=localhost
 DB_PORT=5432
+
+## Running Tests
+```bash
+python manage.py test
 ```
