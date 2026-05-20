@@ -1,30 +1,39 @@
 # E-Commerce App
 
-I built this project to learn Django and practice backend development.
-It's a simple e-commerce app where users can browse products,
-search for them, and manage a shopping cart.
+Built with Django and PostgreSQL to practice backend development.
+Users can browse products, manage a cart, and place orders.
 
-## What it does
-- Register and log in
-- Browse and search products
-- Add and remove items from the cart
+## Features
+- User registration and authentication
+- Product browsing and search
+- Shopping cart (add / remove items)
+- Stock management
+- Order checkout with atomic transactions
 
 ## Stack
 - Python / Django
 - PostgreSQL
+- Docker
 
-## Run it locally
+## Run with Docker
+```bash
+cp .env.example .env
+docker-compose up --build
+```
 
-Clone the repo and install dependencies:
-    pip install -r requirements.txt
+## Run locally
+```bash
+pip install -r requirements.txt
+cp .env.example .env
+python manage.py migrate
+python manage.py runserver
+```
 
-Create a .env file:
-    DB_NAME=yourdb
-    DB_USER=youruser
-    DB_PASSWORD=yourpassword
-    DB_HOST=localhost
-    DB_PORT=5432
-
-Run migrations and start the server:
-    python manage.py migrate
-    python manage.py runserver
+## Environment Variables
+```
+DB_NAME=
+DB_USER=
+DB_PASSWORD=
+DB_HOST=localhost
+DB_PORT=5432
+```
