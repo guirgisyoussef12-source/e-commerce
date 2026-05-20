@@ -30,7 +30,7 @@ staticfiles/
 Thumbs.db
 
 # Docker
-.dockerignore
+*.tar
 
 # Logs
 *.log

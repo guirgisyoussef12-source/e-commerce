@@ -1,20 +1,13 @@
-# Python base image
 FROM python:3.12-slim
-
-# منع ملفات pyc
-ENV PYTHONDONTWRITEBYTECODE = 1
-ENV PYTHONUNBUFFERED = 1
-
-# مجلد الشغل داخل الكونتينر
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV PYTHONUNBUFFERED=1
 WORKDIR /app
-
-# تثبيت dependencies
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends libpq5 \
+    && rm -rf /var/lib/apt/lists/*
 COPY requirements.txt /app/
-RUN pip install --upgrade pip
-RUN pip install -r requirements.txt
-
-# نسخ المشروع
+RUN pip install --upgrade pip \
+    && pip install --no-cache-dir -r requirements.txt
 COPY . /app/
-
-# تشغيل السيرفر
-CMD ["gunicorn", "ecommerce.wsgi:application", "--bind", "0.0.0.0:8000", "--workers", "3"]
+RUN python manage.py collectstatic --noinput
+CMD ["sh", "-c", "python manage.py migrate && gunicorn ecommerce.wsgi:application --bind 0.0.0.0:${PORT:-8000} --workers 3"]

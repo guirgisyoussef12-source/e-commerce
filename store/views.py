@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from .models import Product, CartItem, Order, OrderItem
-
+from django.db import transaction
 def home(request):
     if request.user.is_authenticated:
         return redirect('product_list')
@@ -22,7 +22,8 @@ def product_list(request):
 @login_required
 def add_to_cart(request, product_id):
     product = get_object_or_404(Product, id=product_id)
-
+    if request.method != 'POST':
+        return redirect('product_list')
     if product.stock == 0:
         return redirect('product_list')
 
@@ -41,7 +42,7 @@ def add_to_cart(request, product_id):
 
 @login_required
 def cart_view(request):
-    items = CartItem.objects.filter(user=request.user)
+    items = CartItem.objects.filter(user=request.user).select_related('product')
     return render(request, 'store/cart.html', {'items': items})
 
 
@@ -60,17 +61,18 @@ def checkout(request):
         return redirect('cart')
 
     if request.method == 'POST':
+        with transaction.atomic():
+            order = Order.objects.create(user=request.user)
 
-        order = Order.objects.create(user=request.user)
-
-        for item in items:
-            OrderItem.objects.create(
+            for item in items:
+                OrderItem.objects.create(
                 order=order,
                 product=item.product,
                 quantity=item.quantity,
                 price=item.product.price
             )
-
+            item.product.stock -= item.quantity
+            item.product.save()
         items.delete()
 
         return redirect('checkout_success')

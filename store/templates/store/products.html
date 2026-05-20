@@ -204,7 +204,10 @@
 
                     <div class="product-footer">
                         <span class="price">{{ product.price }} EGP</span>
-                        <a href="{% url 'add_to_cart' product.id %}" class="btn-store btn-primary-store">Add</a>
+                            <form method="POST" action="{% url 'add_to_cart' product.id %}">
+                        {       % csrf_token %}
+                                <button type="submit" class="btn-store btn-primary-store">Add</button>
+                        </form>
                     </div>
                 </div>
             </article>

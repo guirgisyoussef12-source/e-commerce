@@ -1,21 +1,36 @@
 from pathlib import Path
 import os
+
+import dj_database_url
 from dotenv import load_dotenv
+
 
 load_dotenv()
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-# ✅ الإصلاح 1: SECRET_KEY من environment variable مش hardcoded
-SECRET_KEY = os.environ.get('SECRET_KEY')
-if not SECRET_KEY:
-    raise ValueError("SECRET_KEY is not set in environment variables!")
 
-# ✅ الإصلاح 2: DEBUG من environment variable
-DEBUG = os.environ.get('DEBUG', 'False') == 'True'
+def csv_env(name, default=''):
+    return [value.strip() for value in os.environ.get(name, default).split(',') if value.strip()]
 
-# ✅ الإصلاح 3: ALLOWED_HOSTS مرن
-ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', '127.0.0.1,localhost,0.0.0.0').split(',')
+
+SECRET_KEY = (
+    os.environ.get('SECRET_KEY')
+    or os.environ.get('DJANGO_SECRET_KEY')
+    or 'django-insecure-change-me-before-production'
+)
+
+DEBUG = os.environ.get('DEBUG', 'False').lower() in ('1', 'true', 'yes', 'on')
+
+ALLOWED_HOSTS = csv_env(
+    'ALLOWED_HOSTS',
+    '127.0.0.1,localhost,0.0.0.0,.railway.app,.up.railway.app,.onrender.com,.herokuapp.com',
+)
+
+for platform_host in ('RAILWAY_PUBLIC_DOMAIN', 'RENDER_EXTERNAL_HOSTNAME'):
+    host = os.environ.get(platform_host)
+    if host and host not in ALLOWED_HOSTS:
+        ALLOWED_HOSTS.append(host)
 
 
 INSTALLED_APPS = [
@@ -31,6 +46,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -59,15 +75,14 @@ TEMPLATES = [
 WSGI_APPLICATION = 'ecommerce.wsgi.application'
 
 
-# ================= DATABASE =================
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': os.environ.get('DB_NAME', 'ecommerce'),
-        'USER': os.environ.get('DB_USER', 'postgres'),
-        'PASSWORD': os.environ.get('DB_PASSWORD'),
-        'HOST': os.environ.get('DB_HOST', 'db'),
-        'PORT': os.environ.get('DB_PORT', '5432'),
+    "default": {
+        "ENGINE": "django.db.backends.postgresql",
+        "HOST": "localhost",   # ← was "db"
+        "PORT": "5432",
+        "NAME": 'ecommerce',
+        "USER": 'postgres',
+        "PASSWORD": 'guirgis',
     }
 }
 
@@ -85,7 +100,8 @@ USE_I18N = True
 USE_TZ = True
 
 STATIC_URL = 'static/'
-STATIC_ROOT = BASE_DIR / "staticfiles"
+STATIC_ROOT = BASE_DIR / 'staticfiles'
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
@@ -95,10 +111,18 @@ LOGIN_REDIRECT_URL = '/products/'
 LOGOUT_REDIRECT_URL = '/accounts/login/'
 
 SESSION_ENGINE = 'django.contrib.sessions.backends.db'
-# Production settings
-CSRF_TRUSTED_ORIGINS = [
-    'https://guirgis-store.up.railway.app',
-]
 
-# Static files
-STATICFILES_DIRS = []
+CSRF_TRUSTED_ORIGINS = csv_env(
+    'CSRF_TRUSTED_ORIGINS',
+    'https://*.railway.app,https://*.up.railway.app,https://*.onrender.com,https://*.herokuapp.com',
+)
+
+public_domain = os.environ.get('RAILWAY_PUBLIC_DOMAIN')
+if public_domain:
+    CSRF_TRUSTED_ORIGINS.append(f'https://{public_domain}')
+
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+CSRF_COOKIE_SECURE = not DEBUG
+SESSION_COOKIE_SECURE = not DEBUG
+
+DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
