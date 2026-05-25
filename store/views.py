@@ -61,6 +61,7 @@ def remove_from_cart(request, item_id):
     return redirect('cart')
 
 
+
 @login_required
 def checkout(request):
     items = CartItem.objects.filter(user=request.user)
@@ -69,6 +70,11 @@ def checkout(request):
         return redirect('cart')
 
     if request.method == 'POST':
+
+        for item in items:
+            if item.product.stock < item.quantity:
+                return redirect('cart')
+
         with transaction.atomic():
             order = Order.objects.create(user=request.user)
 
@@ -81,7 +87,8 @@ def checkout(request):
                 )
                 item.product.stock -= item.quantity
                 item.product.save()
-        items.delete()
+
+            items.delete()
 
         return redirect('checkout_success')
 
