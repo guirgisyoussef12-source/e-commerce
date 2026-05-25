@@ -108,6 +108,13 @@ class CheckoutView(APIView):
         if not items.exists():
             return Response({'error': 'الكارت فاضي.'}, status=status.HTTP_400_BAD_REQUEST)
 
+        for item in items:
+            if item.product.stock < item.quantity:
+                return Response(
+                    {'error': f'الستوك مش كافي للمنتج: {item.product.name}'},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+
         with transaction.atomic():
             order = Order.objects.create(user=request.user)
 
