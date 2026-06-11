@@ -2,6 +2,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from .models import Product, CartItem, Order, OrderItem , Category
 from django.db import transaction
+
 def home(request):
     if request.user.is_authenticated:
         return redirect('product_list')
@@ -30,19 +31,40 @@ def product_list(request):
 @login_required
 def add_to_cart(request, product_id):
     product = get_object_or_404(Product, id=product_id)
-    if request.method != 'POST':
-        return redirect('product_list')
+    
+    # التحقق من وجود مخزون أصلاً
     if product.stock == 0:
         return redirect('product_list')
 
+    # 1. قراءة الكمية المطلوبة (سواء مبعوتة POST أو GET ليتوافق مع الـ Tests)
+    if request.method == 'POST':
+        try:
+            requested_quantity = int(request.POST.get('quantity', 1))
+        except ValueError:
+            requested_quantity = 1
+    else:
+        try:
+            requested_quantity = int(request.GET.get('quantity', 1))
+        except ValueError:
+            requested_quantity = 1
+
+    # 2. جلب أو إنشاء الـ CartItem بـ quantity=0 للحساب الدقيق والآمن للـ Boundaries
     cart_item, created = CartItem.objects.get_or_create(
         user=request.user,
         product=product,
-        defaults={'quantity': 1}
+        defaults={'quantity': 0}
     )
 
-    if not created and cart_item.quantity < product.stock:
-        cart_item.quantity += 1
+    # 3. حساب الإجمالي المستهدف الجديد في العربة
+    new_quantity = cart_item.quantity + requested_quantity
+
+    # 4. تطبيق شروط الـ Boundary (القيم الحدية)
+    if new_quantity <= product.stock:
+        cart_item.quantity = new_quantity
+        cart_item.save()
+    else:
+        # لو الطلب الجديد عدا المتاح، بنثبت الكمية عند الحد الأقصى للمخزون (الـ Stock كله)
+        cart_item.quantity = product.stock
         cart_item.save()
 
     return redirect('product_list')
@@ -59,7 +81,6 @@ def remove_from_cart(request, item_id):
     item = get_object_or_404(CartItem, id=item_id, user=request.user)
     item.delete()
     return redirect('cart')
-
 
 
 @login_required
@@ -103,6 +124,8 @@ def checkout(request):
 @login_required
 def checkout_success(request):
     return render(request, 'store/checkout_success.html')
+
+
 @login_required
 def order_history(request):
     orders = Order.objects.filter(user=request.user).prefetch_related('items__product').order_by('-created_at')
