@@ -270,15 +270,17 @@ def stripe_webhook(request):
 
     if event['type'] == 'payment_intent.succeeded':
         intent = event['data']['object']
-        Order.objects.filter(
-            stripe_payment_intent=intent['id']
-        ).update(payment_status='paid', complete=True)
+        with transaction.atomic():
+            Order.objects.select_for_update().filter(
+                stripe_payment_intent=intent['id']
+            ).update(payment_status='paid', complete=True)
 
     elif event['type'] == 'payment_intent.payment_failed':
         intent = event['data']['object']
-        Order.objects.filter(
-            stripe_payment_intent=intent['id']
-        ).update(payment_status='failed')
+        with transaction.atomic():
+            Order.objects.select_for_update().filter(
+                stripe_payment_intent=intent['id']
+            ).update(payment_status='failed')
 
     return HttpResponse(status=200)
 
