@@ -39,6 +39,7 @@ class Order(models.Model):
     complete = models.BooleanField(default=False)
     stripe_payment_intent = models.CharField(max_length=200, blank=True, null=True)
     payment_status = models.CharField(max_length=20, choices=PAYMENT_STATUS_CHOICES, default='pending')
+    shipping_address = models.TextField(blank=True, default='')
 
     def __str__(self):
         return f"Order {self.id} by {self.user.username}"

@@ -29,7 +29,6 @@ class StoreBoundaryValueTests(TestCase):
         values.update(overrides)
         return Product.objects.create(**values)
 
-    # ✅ إصلاح 1 — POST بدل GET
     def test_stock_lower_boundary_zero_cannot_be_added_to_cart(self):
         product = self.make_product(stock=0)
         self.client.force_login(self.user)
@@ -39,7 +38,6 @@ class StoreBoundaryValueTests(TestCase):
         self.assertRedirects(response, reverse("product_list"))
         self.assertFalse(CartItem.objects.filter(user=self.user, product=product).exists())
 
-    # ✅ إصلاح 2 — POST بدل GET
     def test_stock_lower_boundary_one_can_be_added_to_cart(self):
         product = self.make_product(stock=1)
         self.client.force_login(self.user)
@@ -49,7 +47,6 @@ class StoreBoundaryValueTests(TestCase):
         self.assertRedirects(response, reverse("product_list"))
         self.assertEqual(CartItem.objects.get(user=self.user, product=product).quantity, 1)
 
-    # ✅ إصلاح 3 — POST بدل GET
     def test_cart_quantity_should_not_exceed_available_stock_boundary(self):
         product = self.make_product(stock=1)
         self.client.force_login(self.user)
@@ -62,7 +59,6 @@ class StoreBoundaryValueTests(TestCase):
     def test_cart_quantity_lower_boundary_one_is_valid(self):
         product = self.make_product(stock=1)
         cart_item = CartItem(user=self.user, product=product, quantity=1)
-
         cart_item.full_clean()
 
     def test_cart_quantity_below_lower_boundary_zero_is_invalid(self):
@@ -80,7 +76,6 @@ class StoreBoundaryValueTests(TestCase):
             stock=1,
             category=self.category,
         )
-
         product.full_clean()
 
     def test_product_price_above_upper_boundary_is_invalid(self):
@@ -103,9 +98,8 @@ class StoreBoundaryValueTests(TestCase):
         self.assertRedirects(response, reverse("cart"))
         self.assertEqual(Order.objects.count(), 0)
 
-    # ✅ إصلاح 4 — الـ checkout دلوقتي بيعمل PaymentIntent مش order مباشرة
-    # الـ test دلوقتي بيتحقق من payment_confirm اللي هو الخطوة اللي بتعمل الـ order
-    @patch("store.views.stripe.PaymentIntent.retrieve")
+    # ✅ الـ test الجديد — بيحاكي Stripe Checkout Session
+    @patch("store.views.stripe.checkout.Session.retrieve")
     def test_checkout_single_item_boundary_creates_order_and_clears_cart(
         self, mock_retrieve
     ):
@@ -114,24 +108,23 @@ class StoreBoundaryValueTests(TestCase):
         self.client.force_login(self.user)
 
         # وضع الـ session كأن الـ checkout اتعمل فعلاً
-        session = self.client.session
-        session["pending_intent_id"] = "pi_test_123"
-        session["pending_intent_amount"] = 1250  # $12.50 in cents
-        session.save()
+        client_session = self.client.session
+        client_session["stripe_checkout_session_id"] = "cs_test_123"
+        client_session.save()
 
-        # Mock الـ Stripe PaymentIntent
-        mock_intent = MagicMock()
-        mock_intent.status = "succeeded"
-        mock_intent.amount = 1250
-        mock_intent.metadata = {"user_id": str(self.user.id)}
-        mock_retrieve.return_value = mock_intent
+        # Mock الـ Stripe Checkout Session
+        mock_session = MagicMock()
+        mock_session.payment_status = "paid"
+        mock_session.metadata = {"user_id": str(self.user.id)}
+        mock_session.shipping_details = None
+        mock_retrieve.return_value = mock_session
 
-        response = self.client.post(
-            reverse("payment_confirm"),
-            {"payment_intent_id": "pi_test_123"},
+        response = self.client.get(
+            reverse("checkout_success") + "?session_id=cs_test_123"
         )
 
-        self.assertRedirects(response, reverse("checkout_success"))
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, "store/checkout_success.html")
 
         order = Order.objects.get(user=self.user)
         order_item = OrderItem.objects.get(order=order)

@@ -4,7 +4,7 @@
 
 <style>
     .success-wrap {
-        max-width: 560px;
+        max-width: 580px;
         margin: 0 auto;
         text-align: center;
     }
@@ -22,7 +22,7 @@
         font-size: 2rem;
     }
 
-    .order-summary-box {
+    .order-box {
         border: 1px solid var(--line);
         border-radius: 8px;
         background: white;
@@ -45,6 +45,17 @@
         font-weight: 800;
         font-size: 1rem;
     }
+
+    .shipping-box {
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: white;
+        padding: 16px 24px;
+        margin: 0 0 28px;
+        text-align: left;
+        font-size: .9rem;
+        line-height: 1.7;
+    }
 </style>
 
 <div class="success-wrap">
@@ -53,11 +64,11 @@
     <div class="section-kicker mb-2">Order confirmed</div>
     <h1 class="page-title">Payment successful!</h1>
     <p class="page-copy mt-3">
-        Thank you for your purchase. Your order #{{ order.id }} has been placed successfully.
+        Thank you! Order #{{ order.id }} has been placed. You'll receive a confirmation email shortly.
     </p>
 
-    <!-- ✅ عرض تفاصيل الـ order الحقيقية -->
-    <div class="order-summary-box">
+    <!-- Order items -->
+    <div class="order-box">
         <div class="section-kicker mb-3">Order #{{ order.id }} — {{ order.created_at|date:"M d, Y" }}</div>
 
         {% for item in order.items.all %}
@@ -72,6 +83,14 @@
             <span>${{ order.get_cart_total }}</span>
         </div>
     </div>
+
+    <!-- Shipping address -->
+    {% if order.shipping_address %}
+    <div class="shipping-box">
+        <div class="section-kicker mb-2">Shipping to</div>
+        <p class="mb-0">{{ order.shipping_address }}</p>
+    </div>
+    {% endif %}
 
     <div style="display:flex; gap:12px; justify-content:center; flex-wrap:wrap;">
         <a href="{% url 'order_history' %}" class="btn-store btn-primary-store">

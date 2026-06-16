@@ -20,7 +20,7 @@ SECRET_KEY = (
     or 'django-insecure-change-me-before-production'
 )
 
-DEBUG = os.environ.get('DEBUG', 'False').lower() in ('1', 'true', 'yes', 'on')
+DEBUG = os.environ.get('DEBUG', 'False').lower() not in ('0', 'false', 'no', 'off', '')
 
 ALLOWED_HOSTS = csv_env(
     'ALLOWED_HOSTS',
