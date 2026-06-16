@@ -1,4 +1,5 @@
 from decimal import Decimal
+from unittest.mock import patch, MagicMock
 
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
@@ -28,30 +29,33 @@ class StoreBoundaryValueTests(TestCase):
         values.update(overrides)
         return Product.objects.create(**values)
 
+    # ✅ إصلاح 1 — POST بدل GET
     def test_stock_lower_boundary_zero_cannot_be_added_to_cart(self):
         product = self.make_product(stock=0)
         self.client.force_login(self.user)
 
-        response = self.client.get(reverse("add_to_cart", args=[product.id]))
+        response = self.client.post(reverse("add_to_cart", args=[product.id]))
 
         self.assertRedirects(response, reverse("product_list"))
         self.assertFalse(CartItem.objects.filter(user=self.user, product=product).exists())
 
+    # ✅ إصلاح 2 — POST بدل GET
     def test_stock_lower_boundary_one_can_be_added_to_cart(self):
         product = self.make_product(stock=1)
         self.client.force_login(self.user)
 
-        response = self.client.get(reverse("add_to_cart", args=[product.id]))
+        response = self.client.post(reverse("add_to_cart", args=[product.id]))
 
         self.assertRedirects(response, reverse("product_list"))
         self.assertEqual(CartItem.objects.get(user=self.user, product=product).quantity, 1)
 
+    # ✅ إصلاح 3 — POST بدل GET
     def test_cart_quantity_should_not_exceed_available_stock_boundary(self):
         product = self.make_product(stock=1)
         self.client.force_login(self.user)
 
-        self.client.get(reverse("add_to_cart", args=[product.id]))
-        self.client.get(reverse("add_to_cart", args=[product.id]))
+        self.client.post(reverse("add_to_cart", args=[product.id]))
+        self.client.post(reverse("add_to_cart", args=[product.id]))
 
         self.assertEqual(CartItem.objects.get(user=self.user, product=product).quantity, 1)
 
@@ -94,19 +98,41 @@ class StoreBoundaryValueTests(TestCase):
     def test_checkout_empty_cart_boundary_redirects_to_cart(self):
         self.client.force_login(self.user)
 
-        response = self.client.post(reverse("checkout"))
+        response = self.client.get(reverse("checkout"))
 
         self.assertRedirects(response, reverse("cart"))
         self.assertEqual(Order.objects.count(), 0)
 
-    def test_checkout_single_item_boundary_creates_order_and_clears_cart(self):
+    # ✅ إصلاح 4 — الـ checkout دلوقتي بيعمل PaymentIntent مش order مباشرة
+    # الـ test دلوقتي بيتحقق من payment_confirm اللي هو الخطوة اللي بتعمل الـ order
+    @patch("store.views.stripe.PaymentIntent.retrieve")
+    def test_checkout_single_item_boundary_creates_order_and_clears_cart(
+        self, mock_retrieve
+    ):
         product = self.make_product(stock=1, price=Decimal("12.50"))
         CartItem.objects.create(user=self.user, product=product, quantity=1)
         self.client.force_login(self.user)
 
-        response = self.client.post(reverse("checkout"))
+        # وضع الـ session كأن الـ checkout اتعمل فعلاً
+        session = self.client.session
+        session["pending_intent_id"] = "pi_test_123"
+        session["pending_intent_amount"] = 1250  # $12.50 in cents
+        session.save()
+
+        # Mock الـ Stripe PaymentIntent
+        mock_intent = MagicMock()
+        mock_intent.status = "succeeded"
+        mock_intent.amount = 1250
+        mock_intent.metadata = {"user_id": str(self.user.id)}
+        mock_retrieve.return_value = mock_intent
+
+        response = self.client.post(
+            reverse("payment_confirm"),
+            {"payment_intent_id": "pi_test_123"},
+        )
 
         self.assertRedirects(response, reverse("checkout_success"))
+
         order = Order.objects.get(user=self.user)
         order_item = OrderItem.objects.get(order=order)
         self.assertEqual(order_item.quantity, 1)

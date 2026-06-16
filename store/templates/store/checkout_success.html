@@ -2,16 +2,85 @@
 
 {% block content %}
 
-<section class="empty-state">
+<style>
+    .success-wrap {
+        max-width: 560px;
+        margin: 0 auto;
+        text-align: center;
+    }
+
+    .success-icon {
+        width: 72px;
+        height: 72px;
+        background: #dcfce7;
+        border: 2px solid #bbf7d0;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 28px;
+        font-size: 2rem;
+    }
+
+    .order-summary-box {
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: white;
+        padding: 20px 24px;
+        margin: 28px 0;
+        text-align: left;
+    }
+
+    .order-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 10px 0;
+        border-bottom: 1px solid var(--line);
+        font-size: .92rem;
+    }
+
+    .order-row:last-child {
+        border-bottom: none;
+        font-weight: 800;
+        font-size: 1rem;
+    }
+</style>
+
+<div class="success-wrap">
+    <div class="success-icon">✓</div>
+
     <div class="section-kicker mb-2">Order confirmed</div>
-    <h1 class="page-title">Success</h1>
-    <p class="page-copy mt-3 mb-4">
-        Thank you for your purchase. Your order has been placed successfully.
+    <h1 class="page-title">Payment successful!</h1>
+    <p class="page-copy mt-3">
+        Thank you for your purchase. Your order #{{ order.id }} has been placed successfully.
     </p>
 
-    <a href="{% url 'product_list' %}" class="btn-store btn-primary-store">
-        Back to store
-    </a>
-</section>
+    <!-- ✅ عرض تفاصيل الـ order الحقيقية -->
+    <div class="order-summary-box">
+        <div class="section-kicker mb-3">Order #{{ order.id }} — {{ order.created_at|date:"M d, Y" }}</div>
+
+        {% for item in order.items.all %}
+            <div class="order-row">
+                <span>{{ item.product.name }} × {{ item.quantity }}</span>
+                <span>${{ item.price }}</span>
+            </div>
+        {% endfor %}
+
+        <div class="order-row">
+            <span>Total paid</span>
+            <span>${{ order.get_cart_total }}</span>
+        </div>
+    </div>
+
+    <div style="display:flex; gap:12px; justify-content:center; flex-wrap:wrap;">
+        <a href="{% url 'order_history' %}" class="btn-store btn-primary-store">
+            View all orders
+        </a>
+        <a href="{% url 'product_list' %}" class="btn-store">
+            Back to store
+        </a>
+    </div>
+</div>
 
 {% endblock %}

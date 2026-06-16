@@ -1,0 +1,77 @@
+{% extends 'store/base.html' %}
+
+{% block content %}
+
+<style>
+    .error-wrap {
+        max-width: 540px;
+        margin: 0 auto;
+        text-align: center;
+    }
+
+    .error-icon {
+        width: 72px;
+        height: 72px;
+        background: #fee2e2;
+        border: 2px solid #fca5a5;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 28px;
+        font-size: 2rem;
+    }
+
+    .error-box {
+        border: 1px solid #fca5a5;
+        border-radius: 8px;
+        background: #fff5f5;
+        padding: 20px 24px;
+        margin: 24px 0;
+        text-align: left;
+        font-size: .92rem;
+        color: #7f1d1d;
+        line-height: 1.7;
+    }
+
+    .intent-id {
+        font-family: monospace;
+        font-size: .82rem;
+        background: #fee2e2;
+        padding: 4px 8px;
+        border-radius: 4px;
+        word-break: break-all;
+    }
+</style>
+
+<div class="error-wrap">
+    <div class="error-icon">✕</div>
+
+    <div class="section-kicker mb-2" style="color: var(--danger);">Payment issue</div>
+    <h1 class="page-title">Something went wrong</h1>
+
+    <div class="error-box">
+        <p class="mb-3">{{ message }}</p>
+        {% if intent_id %}
+            <p class="mb-0">
+                Reference ID: <span class="intent-id">{{ intent_id }}</span><br>
+                <small>Please save this ID if you need to contact support.</small>
+            </p>
+        {% endif %}
+    </div>
+
+    <p class="muted-copy mb-4">
+        If you were charged and your order didn't go through, please contact us with the reference ID above.
+    </p>
+
+    <div style="display:flex; gap:12px; justify-content:center; flex-wrap:wrap;">
+        <a href="{% url 'order_history' %}" class="btn-store btn-primary-store">
+            View my orders
+        </a>
+        <a href="{% url 'product_list' %}" class="btn-store">
+            Back to store
+        </a>
+    </div>
+</div>
+
+{% endblock %}

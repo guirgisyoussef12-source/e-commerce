@@ -87,6 +87,39 @@
         border-top: 1px solid var(--line);
         margin: 0;
     }
+
+    .badge-paid {
+        display: inline-block;
+        background: #dcfce7;
+        color: #15803d;
+        font-size: 0.75rem;
+        font-weight: 700;
+        padding: 3px 10px;
+        border-radius: 20px;
+        border: 1px solid #bbf7d0;
+    }
+
+    .badge-pending {
+        display: inline-block;
+        background: #fef9c3;
+        color: #a16207;
+        font-size: 0.75rem;
+        font-weight: 700;
+        padding: 3px 10px;
+        border-radius: 20px;
+        border: 1px solid #fde68a;
+    }
+
+    .badge-failed {
+        display: inline-block;
+        background: #fee2e2;
+        color: #b91c1c;
+        font-size: 0.75rem;
+        font-weight: 700;
+        padding: 3px 10px;
+        border-radius: 20px;
+        border: 1px solid #fca5a5;
+    }
 </style>
 
 <div class="history-hero">
@@ -102,7 +135,14 @@
                 <div class="order-header">
                     <h2 class="order-id">Order #{{ order.id }}</h2>
                     <span class="order-date">{{ order.created_at|date:"M d, Y" }}</span>
-                    <span class="order-total">{{ order.get_cart_total }} EGP</span>
+                    {% if order.payment_status == 'paid' %}
+                        <span class="badge-paid">✓ Paid</span>
+                    {% elif order.payment_status == 'failed' %}
+                        <span class="badge-failed">✗ Failed</span>
+                    {% else %}
+                        <span class="badge-pending">⏳ Pending</span>
+                    {% endif %}
+                    <span class="order-total">${{ order.get_cart_total }}</span>
                 </div>
 
                 <div class="order-items">
@@ -110,7 +150,7 @@
                         <div class="order-item-row">
                             <span class="item-name">{{ item.product.name }}</span>
                             <span class="item-qty">x{{ item.quantity }}</span>
-                            <span class="item-price">{{ item.price }} EGP</span>
+                            <span class="item-price">${{ item.price }}</span>
                         </div>
                         {% if not forloop.last %}
                             <hr class="divider">

@@ -133,6 +133,49 @@
         white-space: nowrap;
     }
 
+    /* Pagination */
+    .pagination-wrap {
+        display: flex;
+        justify-content: center;
+        gap: 8px;
+        margin-top: 36px;
+        flex-wrap: wrap;
+    }
+
+    .page-btn {
+        min-width: 42px;
+        height: 42px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        padding: 0 12px;
+        color: var(--ink);
+        background: rgba(255,255,255,.75);
+        font-size: .9rem;
+        font-weight: 700;
+        text-decoration: none;
+        transition: .15s ease;
+    }
+
+    .page-btn:hover {
+        border-color: var(--brand);
+        color: var(--brand);
+        background: white;
+    }
+
+    .page-btn.active {
+        background: var(--brand);
+        border-color: var(--brand);
+        color: white;
+    }
+
+    .page-btn.disabled {
+        opacity: 0.4;
+        pointer-events: none;
+    }
+
     @media (max-width: 860px) {
         .store-hero {
             grid-template-columns: 1fr;
@@ -216,16 +259,48 @@
                     <p class="product-description">{{ product.description|truncatewords:14 }}</p>
 
                     <div class="product-footer">
-                        <span class="price">{{ product.price }} EGP</span>
+                        <span class="price">${{ product.price }}</span>
                         <form method="POST" action="{% url 'add_to_cart' product.id %}">
                             {% csrf_token %}
-                            <button type="submit" class="btn-store btn-primary-store">Add</button>
+                            <button type="submit" class="btn-store btn-primary-store"
+                                    {% if product.stock == 0 %}disabled{% endif %}>
+                                {% if product.stock == 0 %}Out of stock{% else %}Add{% endif %}
+                            </button>
                         </form>
                     </div>
                 </div>
             </article>
         {% endfor %}
     </section>
+
+    <!-- ✅ Pagination -->
+    {% if page_obj.paginator.num_pages > 1 %}
+    <div class="pagination-wrap">
+        {% if page_obj.has_previous %}
+            <a href="?page={{ page_obj.previous_page_number }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}"
+               class="page-btn">← Prev</a>
+        {% else %}
+            <span class="page-btn disabled">← Prev</span>
+        {% endif %}
+
+        {% for num in page_obj.paginator.page_range %}
+            {% if page_obj.number == num %}
+                <span class="page-btn active">{{ num }}</span>
+            {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                <a href="?page={{ num }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}"
+                   class="page-btn">{{ num }}</a>
+            {% endif %}
+        {% endfor %}
+
+        {% if page_obj.has_next %}
+            <a href="?page={{ page_obj.next_page_number }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}"
+               class="page-btn">Next →</a>
+        {% else %}
+            <span class="page-btn disabled">Next →</span>
+        {% endif %}
+    </div>
+    {% endif %}
+
 {% else %}
     <div class="empty-state">
         <h2 class="h4 fw-bold mb-2">No products found</h2>
