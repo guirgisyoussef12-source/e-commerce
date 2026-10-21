@@ -19,6 +19,6 @@ fi
 if docker-compose exec -T web python manage.py test; then
     echo "✅ All Boundary Tests Passed Successfully!"
 else
-    echo "❌ Tests failed."
+    echo "❌ Tests failed.."
     exit 1
 fi
