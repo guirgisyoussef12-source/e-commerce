@@ -1,0 +1,7 @@
+extend-exclude = ["staticfiles", "media", "*/migrations"]
+
+[lint]
+select = ["E4", "E7", "E9", "F", "I"]
+
+[lint.per-file-ignores]
+"ecommerce/test_settings.py" = ["F403", "F405"]
