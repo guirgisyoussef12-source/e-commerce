@@ -19,7 +19,7 @@ logger = logging.getLogger(__name__)
 def home(request):
     if request.user.is_authenticated:
         return redirect('product_list')
-    return redirect('sign_up')
+    return redirect('login')
 
 
 @login_required
