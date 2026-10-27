@@ -131,3 +131,4 @@ class StoreBoundaryValueTests(TestCase):
         self.assertEqual(order_item.quantity, 1)
         self.assertEqual(order_item.price, Decimal("12.50"))
         self.assertFalse(CartItem.objects.filter(user=self.user).exists())
+                
