@@ -69,3 +69,5 @@ jobs:
           file: ./dockerfile
           push: false
           tags: ecommerce:ci
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
