@@ -2,7 +2,7 @@
 set -e
 
 if [ -z "$1" ]; then
-    echo "❌ Error: Please enter a commit message!"
+    echo "❌ Error: Please enter a commit message!!"
     echo "Usage: ./scripts/git_sync.sh \"your message\""
     exit 1
 fi

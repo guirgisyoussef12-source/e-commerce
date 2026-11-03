@@ -1,5 +1,5 @@
 from decimal import Decimal
-from unittest.mock import patch, MagicMock
+from unittest.mock import MagicMock, patch
 
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
@@ -131,3 +131,4 @@ class StoreBoundaryValueTests(TestCase):
         self.assertEqual(order_item.quantity, 1)
         self.assertEqual(order_item.price, Decimal("12.50"))
         self.assertFalse(CartItem.objects.filter(user=self.user).exists())
+                
