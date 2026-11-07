@@ -94,35 +94,46 @@ def remove_from_cart(request, item_id):
 
 @login_required
 def checkout(request):
-    items = CartItem.objects.filter(user=request.user).select_related('product')
+    items = list(CartItem.objects.filter(user=request.user).select_related('product'))
 
-    if not items.exists():
+    if not items:
         return redirect('cart')
 
-    # بناء line_items لـ Stripe Checkout
-    line_items = []
-    for item in items:
-        line_items.append({
+    # 1) أنشئ الأوردر + snapshot للأسعار قبل الدفع
+    with transaction.atomic():
+        order = Order.objects.create(user=request.user)
+        OrderItem.objects.bulk_create([
+            OrderItem(
+                order=order,
+                product=item.product,
+                quantity=item.quantity,
+                price=item.product.price,
+            )
+            for item in items
+        ])
+
+    # 2) line_items من الـ snapshot (مش من السلة)
+    line_items = [
+        {
             'price_data': {
                 'currency': 'usd',
                 'product_data': {
-                    'name': item.product.name,
-                    'description': item.product.description[:100] if item.product.description else '',
+                    'name': oi.product.name,
+                    'description': oi.product.description[:100] if oi.product.description else '',
                 },
-                'unit_amount': int(item.product.price * 100),
+                'unit_amount': int(oi.price * 100),
             },
-            'quantity': item.quantity,
-        })
+            'quantity': oi.quantity,
+        }
+        for oi in order.items.select_related('product')
+    ]
 
     try:
         session = stripe.checkout.Session.create(
             payment_method_types=['card'],
             line_items=line_items,
             mode='payment',
-            # ✅ بيجمع العنوان ويسمح بـ US بس
-            shipping_address_collection={
-                'allowed_countries': ['US'],
-            },
+            shipping_address_collection={'allowed_countries': ['US']},
             shipping_options=[
                 {
                     'shipping_rate_data': {
@@ -148,26 +159,24 @@ def checkout(request):
                 },
             ],
             customer_email=request.user.email,
+            client_reference_id=str(order.id),
+            metadata={'order_id': str(order.id), 'user_id': str(request.user.id)},
             success_url=request.build_absolute_uri('/checkout/success/') + '?session_id={CHECKOUT_SESSION_ID}',
             cancel_url=request.build_absolute_uri('/cart/'),
-            metadata={
-                'user_id': str(request.user.id),
-                'user_email': request.user.email,
-            },
         )
     except stripe.error.StripeError as e:
         logger.error(f'Stripe session creation error for user {request.user.id}: {e}')
+        order.delete()
         return render(request, 'store/payment_error.html', {
             'message': 'Unable to connect to payment provider. Please try again.',
             'intent_id': '',
         })
 
-    # خزن الـ session ID عشان نتحقق منه في الـ success
+    order.stripe_payment_intent = session.id
+    order.save(update_fields=['stripe_payment_intent'])
     request.session['stripe_checkout_session_id'] = session.id
 
     return redirect(session.url, permanent=False)
-
-
 @login_required
 def checkout_success(request):
     session_id = request.GET.get('session_id')
@@ -314,3 +323,6 @@ def order_history(request):
         user=request.user
     ).prefetch_related('items__product').order_by('-created_at')
     return render(request, 'store/order_history.html', {'orders': orders})
+
+def heatlth_check(request):
+    return HttpResponse("OK", status=200)
