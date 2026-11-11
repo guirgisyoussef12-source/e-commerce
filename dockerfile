@@ -62,7 +62,7 @@ RUN pip install \
 
 # Copy application
 COPY . .
-
+RUN mkdir -p /app/media /app/staticfiles
 
 # Create non-root user
 RUN adduser \
