@@ -12,23 +12,11 @@ def csv_env(name, default=''):
     return [value.strip() for value in os.environ.get(name, default).split(',') if value.strip()]
 
 
-SECRET_KEY = (
-    os.environ.get('SECRET_KEY')
-    or os.environ.get('DJANGO_SECRET_KEY')
-    or 'django-insecure-change-me-before-production'
-)
+SECRET_KEY = os.environ.get('SECRET_KEY') or 'django-insecure-change-me-before-production'
 
 DEBUG = os.environ.get('DEBUG', 'False').lower() not in ('0', 'false', 'no', 'off', '')
 
-ALLOWED_HOSTS = csv_env(
-    'ALLOWED_HOSTS',
-    '127.0.0.1,localhost,0.0.0.0,.railway.app,.up.railway.app,.onrender.com,.herokuapp.com',
-)
-
-for platform_host in ('RAILWAY_PUBLIC_DOMAIN', 'RENDER_EXTERNAL_HOSTNAME'):
-    host = os.environ.get(platform_host)
-    if host and host not in ALLOWED_HOSTS:
-        ALLOWED_HOSTS.append(host)
+ALLOWED_HOSTS = csv_env('ALLOWED_HOSTS', '127.0.0.1,localhost')
 
 
 INSTALLED_APPS = [
@@ -58,7 +46,7 @@ ROOT_URLCONF = 'ecommerce.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [BASE_DIR / 'templates'],
+        'DIRS': [],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -92,15 +80,18 @@ AUTH_PASSWORD_VALIDATORS = [
     {'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator'},
 ]
 
-LANGUAGE_CODE = 'en-us'
 TIME_ZONE = 'UTC'
-USE_I18N = True
-USE_TZ = True
+
+# Static files (served by WhiteNoise after `collectstatic`)
+STATIC_URL = 'static/'
+STATIC_ROOT = BASE_DIR / 'staticfiles'
 
 STORAGES = {
     "default": {"BACKEND": "django.core.files.storage.FileSystemStorage"},
     "staticfiles": {"BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage"},
 }
+
+# Uploaded files (product images)
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
@@ -108,27 +99,14 @@ LOGIN_URL = '/accounts/login/'
 LOGIN_REDIRECT_URL = '/products/'
 LOGOUT_REDIRECT_URL = '/accounts/login/'
 
-SESSION_ENGINE = 'django.contrib.sessions.backends.db'
-
-CSRF_TRUSTED_ORIGINS = csv_env(
-    'CSRF_TRUSTED_ORIGINS',
-    'https://*.railway.app,https://*.up.railway.app,https://*.onrender.com,https://*.herokuapp.com',
-)
-
-public_domain = os.environ.get('RAILWAY_PUBLIC_DOMAIN')
-if public_domain:
-    CSRF_TRUSTED_ORIGINS.append(f'https://{public_domain}')
-
-SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 CSRF_COOKIE_SECURE = not DEBUG
 SESSION_COOKIE_SECURE = not DEBUG
-
-DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # Stripe Payment
 STRIPE_PUBLISHABLE_KEY = os.environ.get('STRIPE_PUBLISHABLE_KEY', '')
 STRIPE_SECRET_KEY = os.environ.get('STRIPE_SECRET_KEY', '')
 STRIPE_WEBHOOK_SECRET = os.environ.get('STRIPE_WEBHOOK_SECRET', '')
+
 # Logging
 LOGGING = {
     'version': 1,
