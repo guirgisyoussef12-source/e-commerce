@@ -324,5 +324,5 @@ def order_history(request):
     ).prefetch_related('items__product').order_by('-created_at')
     return render(request, 'store/order_history.html', {'orders': orders})
 
-def heatlth_check(request):
+def health_check(request):
     return HttpResponse("OK", status=200)
